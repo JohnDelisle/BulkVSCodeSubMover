@@ -2,6 +2,14 @@
 
 The actual tenant transfer step must remain gated until this document is completed with real evidence from your environment.
 
+Transfer support marker for automation:
+
+```text
+SUPPORTED_TRANSFER_PATH_VALIDATED: false
+```
+
+Set this value to `true` only after all required proof points below are complete and validated.
+
 ## Required proof points
 
 1. Identify the Microsoft-supported API or CLI command used for directory transfer.

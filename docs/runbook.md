@@ -8,16 +8,25 @@ This repository currently implements:
 - migrate-mode safety gates
 - source-tenant discovery orchestration
 - candidate subscription regex matching, deduplication, and base status classification
+- owner snapshotting from Azure RBAC
+- raw RBAC snapshot export under each run folder
+- orphan and no-resolvable-owner reporting
+- resource-risk inspection with Low, Medium, High, and Blocked classification
+- raw resource snapshot export under each run folder
+- Notify mode owner targeting and notification report generation
+- Graph email send path for notifications when `NotificationMode = Email` and `WhatIf = $false`
+- notification deduplication by `(SubscriptionId, Recipient)` to avoid duplicate sends
+- Preflight mode with target guest mapping and preflight-results report generation
+- preflight access gating that marks `Decision = BlockedPreflight` when source RBAC or target tenant access checks fail
+- Migrate mode scaffolding with resumable execution planning and `migration-results.csv` output
+- Validate mode scaffolding with `post-validation.csv` output
+- Report mode with `final-report.json` summary output
 - CSV artifact creation for the full report set
 
 This repository does not yet implement:
-- owner or RBAC snapshotting
-- resource-risk inspection
-- owner notifications
-- target-tenant guest preparation
-- preflight checks
-- migration orchestration beyond safety gating
-- post-transfer restoration and validation
+- supported transfer API/CLI implementation (the transfer stub remains intentionally guarded)
+- automated owner restoration and deep post-transfer validation logic
+- transfer support detection beyond marker-based proof signaling
 
 ## First run
 
@@ -31,6 +40,20 @@ This repository does not yet implement:
 pwsh ./BulkVSCodeSubMover.ps1 -ConfigPath ./Config/settings.ps1 -Mode Discovery
 ```
 
+Additional implemented modes:
+
+```powershell
+pwsh ./BulkVSCodeSubMover.ps1 -ConfigPath ./Config/settings.ps1 -Mode Notify
+pwsh ./BulkVSCodeSubMover.ps1 -ConfigPath ./Config/settings.ps1 -Mode Preflight
+pwsh ./BulkVSCodeSubMover.ps1 -ConfigPath ./Config/settings.ps1 -Mode Migrate
+pwsh ./BulkVSCodeSubMover.ps1 -ConfigPath ./Config/settings.ps1 -Mode Validate
+pwsh ./BulkVSCodeSubMover.ps1 -ConfigPath ./Config/settings.ps1 -Mode Report
+```
+
+Transfer support flag behavior:
+- Preflight reports `TransferSupported = true` only when [docs/pilot-transfer-proof.md](docs/pilot-transfer-proof.md) includes `SUPPORTED_TRANSFER_PATH_VALIDATED: true`.
+- Otherwise preflight reports `TransferSupported = false` and keeps migration readiness conservative.
+
 ## Artifacts
 
 Each run creates:
@@ -39,7 +62,14 @@ Each run creates:
 - `events.jsonl`
 - `errors.jsonl`
 - `candidates.csv`
-- placeholder CSVs for owners, notifications, preflight, migration, post-validation, and orphan review
+- `owners.csv`
+- `orphan-review.csv`
+- `owner-notifications.csv`
+- `preflight-results.csv`
+- `migration-results.csv`
+- `post-validation.csv`
+- `final-report.json`
+- raw RBAC and resource JSON snapshots in the `raw` folder
 
 ## Operational note
 
